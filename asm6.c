@@ -133,10 +133,10 @@ void expandrept(int,char*);
 void make_error(label*,char**);
 
 //65C02 adds ZPIND and ABSIND addressing modes
-enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ZPIND,ABSX,ABSY,ZP,ABS,ABSIND,REL,IMP};
+enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP,ZPIND,ABSIND};
 int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0};
-char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0};
-char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","",""};
+char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0,'(','('};
+char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","","",")",",X)",};
 byte brk[]={0x00,IMM,0x00,ZP,0x00,IMP,-1};
 byte ora[]={0x09,IMM,0x01,INDX,0x11,INDY,0x15,ZPX,0x1d,ABSX,0x19,ABSY,0x05,ZP,0x0d,ABS,-1};
 byte asl[]={0x0a,ACC,0x16,ZPX,0x1e,ABSX,0x06,ZP,0x0e,ABS,0x0a,IMP,-1};

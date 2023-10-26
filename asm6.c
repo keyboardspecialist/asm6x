@@ -132,7 +132,8 @@ void expandmacro(label*,char**,int,char*);
 void expandrept(int,char*);
 void make_error(label*,char**);
 
-enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP};
+//65C02 adds ZPIND and ABSIND addressing modes
+enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ZPIND,ABSX,ABSY,ZP,ABS,ABSIND,REL,IMP};
 int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0};
 char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0};
 char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","",""};
@@ -193,6 +194,55 @@ byte nop[]={0xea,IMP,-1};
 byte beq[]={0xf0,REL,-1};
 byte sed[]={0xf8,IMP,-1};
 
+//65C02 instructions
+byte ina[]={0x1a,IMP,-1};
+byte dea[]={0x3a,IMP,-1};
+byte phx[]={0xda,IMP,-1};
+byte plx[]={0xfa,IMP,-1};
+byte phy[]={0x5a,IMP,-1};
+byte ply[]={0x7a,IMP,-1};
+byte stz[]={0x64,ZP,0x74,ZPX,0x9c,ABS,0x9e,ABSX,-1};
+byte trb[]={0x14,ZP,0x1c,ABS,-1};
+byte tsb[]={0x04,ZP,0x0c,ABS,-1};
+byte bra[]={0x80,REL,-1};
+//WDC 65C02S instructions
+byte bbr0[]={0x0f,REL,-1};
+byte bbr1[]={0x1f,REL,-1};
+byte bbr2[]={0x2f,REL,-1};
+byte bbr3[]={0x3f,REL,-1};
+byte bbr4[]={0x4f,REL,-1};
+byte bbr5[]={0x5f,REL,-1};
+byte bbr6[]={0x6f,REL,-1};
+byte bbr7[]={0x7f,REL,-1};
+byte bbs0[]={0x8f,REL,-1};
+byte bbs1[]={0x9f,REL,-1};
+byte bbs2[]={0xaf,REL,-1};
+byte bbs3[]={0xbf,REL,-1};
+byte bbs4[]={0xcf,REL,-1};
+byte bbs5[]={0xdf,REL,-1};
+byte bbs6[]={0xef,REL,-1};
+byte bbs7[]={0xff,REL,-1};
+byte rmb0[]={0x07,ZP,-1};
+byte rmb1[]={0x17,ZP,-1};
+byte rmb2[]={0x27,ZP,-1};
+byte rmb3[]={0x37,ZP,-1};
+byte rmb4[]={0x47,ZP,-1};
+byte rmb5[]={0x57,ZP,-1};
+byte rmb6[]={0x67,ZP,-1};
+byte rmb7[]={0x77,ZP,-1};
+byte smb0[]={0x87,ZP,-1};
+byte smb1[]={0x97,ZP,-1};
+byte smb2[]={0xa7,ZP,-1};
+byte smb3[]={0xb7,ZP,-1};
+byte smb4[]={0xc7,ZP,-1};
+byte smb5[]={0xd7,ZP,-1};
+byte smb6[]={0xe7,ZP,-1};
+byte smb7[]={0xf7,ZP,-1};
+byte stp[]={0xdb,IMP,-1};
+byte wai[]={0xcb,IMP,-1};
+
+
+
 void *rsvdlist[]={       //all reserved words
 		"BRK",brk,
 		"PHP",php,
@@ -250,6 +300,52 @@ void *rsvdlist[]={       //all reserved words
 		"STX",stx,
 		"DEC",dec,
 		"INC",inc,
+		//65C02 instructions
+		"INA",ina,
+		"DEA",dea,
+		"PHX",phx,
+		"PLX",plx,
+		"PHY",phy,
+		"PLY",ply,
+		"STZ",stz,
+		"TRB",trb,
+		"TSB",tsb,
+		"BRA",bra,
+		//WDC 65C02S instructions
+		"BBR0",bbr0,
+		"BBR1",bbr1,
+		"BBR2",bbr2,
+		"BBR3",bbr3,
+		"BBR4",bbr4,
+		"BBR5",bbr5,
+		"BBR6",bbr6,
+		"BBR7",bbr7,
+		"BBS0",bbs0,
+		"BBS1",bbs1,
+		"BBS2",bbs2,
+		"BBS3",bbs3,
+		"BBS4",bbs4,
+		"BBS5",bbs5,
+		"BBS6",bbs6,
+		"BBS7",bbs7,
+		"RMB0",rmb0,
+		"RMB1",rmb1,
+		"RMB2",rmb2,
+		"RMB3",rmb3,
+		"RMB4",rmb4,
+		"RMB5",rmb5,
+		"RMB6",rmb6,
+		"RMB7",rmb7,
+		"SMB0",smb0,
+		"SMB1",smb1,
+		"SMB2",smb2,
+		"SMB3",smb3,
+		"SMB4",smb4,
+		"SMB5",smb5,
+		"SMB6",smb6,
+		"SMB7",smb7,
+		"STP",stp,
+		"WAI",wai,
 		0, 0
 };
 

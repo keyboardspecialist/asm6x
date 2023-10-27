@@ -139,10 +139,10 @@ void make_error(label*,char**);
 byte x16_loader[] = {0x08, 0x01, 0x08, 0x0b, 0x03, 0x20, 0x9e, '2','0','6','1', 0, 0, 0};
 
 //65C02 adds ZPIND and ABSIND addressing modes
-enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP,ZPIND,ABSIND};
-int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0,1,2};
-char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0,'(','('};
-char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","","",")",",X)",};
+enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP,ZPIND,ABSIND,ZPREL};
+int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0,1,2,1};
+char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0,'(','(',0};
+char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","","",")",",X)",""};
 byte brk[]={0x00,IMM,0x00,ZP,0x00,IMP,-1};
 byte ora[]={0x09,IMM,0x01,INDX,0x11,INDY,0x15,ZPX,0x1d,ABSX,0x19,ABSY,0x05,ZP,0x0d,ABS,0x12,ZPIND,-1};
 byte asl[]={0x0a,ACC,0x16,ZPX,0x1e,ABSX,0x06,ZP,0x0e,ABS,0x0a,IMP,-1};
@@ -212,22 +212,22 @@ byte trb[]={0x14,ZP,0x1c,ABS,-1};
 byte tsb[]={0x04,ZP,0x0c,ABS,-1};
 byte bra[]={0x80,REL,-1};
 //WDC 65C02S instructions
-byte bbr0[]={0x0f,REL,-1};
-byte bbr1[]={0x1f,REL,-1};
-byte bbr2[]={0x2f,REL,-1};
-byte bbr3[]={0x3f,REL,-1};
-byte bbr4[]={0x4f,REL,-1};
-byte bbr5[]={0x5f,REL,-1};
-byte bbr6[]={0x6f,REL,-1};
-byte bbr7[]={0x7f,REL,-1};
-byte bbs0[]={0x8f,REL,-1};
-byte bbs1[]={0x9f,REL,-1};
-byte bbs2[]={0xaf,REL,-1};
-byte bbs3[]={0xbf,REL,-1};
-byte bbs4[]={0xcf,REL,-1};
-byte bbs5[]={0xdf,REL,-1};
-byte bbs6[]={0xef,REL,-1};
-byte bbs7[]={0xff,REL,-1};
+byte bbr0[]={0x0f,ZPREL,-1};
+byte bbr1[]={0x1f,ZPREL,-1};
+byte bbr2[]={0x2f,ZPREL,-1};
+byte bbr3[]={0x3f,ZPREL,-1};
+byte bbr4[]={0x4f,ZPREL,-1};
+byte bbr5[]={0x5f,ZPREL,-1};
+byte bbr6[]={0x6f,ZPREL,-1};
+byte bbr7[]={0x7f,ZPREL,-1};
+byte bbs0[]={0x8f,ZPREL,-1};
+byte bbs1[]={0x9f,ZPREL,-1};
+byte bbs2[]={0xaf,ZPREL,-1};
+byte bbs3[]={0xbf,ZPREL,-1};
+byte bbs4[]={0xcf,ZPREL,-1};
+byte bbs5[]={0xdf,ZPREL,-1};
+byte bbs6[]={0xef,ZPREL,-1};
+byte bbs7[]={0xff,ZPREL,-1};
 byte rmb0[]={0x07,ZP,-1};
 byte rmb1[]={0x17,ZP,-1};
 byte rmb2[]={0x27,ZP,-1};
@@ -245,6 +245,7 @@ byte smb5[]={0xd7,ZP,-1};
 byte smb6[]={0xe7,ZP,-1};
 byte smb7[]={0xf7,ZP,-1};
 byte stp[]={0xdb,IMP,-1};
+byte dbg[]={0xdb,IMP,-1};
 byte wai[]={0xcb,IMP,-1};
 
 
@@ -353,6 +354,7 @@ void *rsvdlist[]={       //all reserved words
 		"SMB6",smb6,
 		"SMB7",smb7,
 		"STP",stp,
+		"DBG",dbg,
 		"WAI",wai,
 		0, 0
 };
@@ -2026,7 +2028,7 @@ void org(label *id, char **next) {
 
 void opcode(label *id, char **next) {
 	char *s,*s2;
-	int type,val = 0;
+	int type,val,zprel_val = 0;
 	byte *op;
 	int oldstate=needanotherpass;
 	int forceRel = 0;
@@ -2041,7 +2043,12 @@ void opcode(label *id, char **next) {
 		if(type!=IMP && type!=ACC) {//get operand
 			if(!eatchar(&s,ophead[type])) continue;
 			val=eval(&s,WHOLEEXP,type);
-			if(type==REL) {
+			if(type==ZPREL) {
+				if(!eatchar(&s,',')) continue; //valid?
+				zprel_val = val;
+				val=eval(&s,WHOLEEXP,ABS);
+			}
+			if(type==REL || type==ZPREL) {
 				if(!dependant) {
 					val-=addr+2;
 					if(val>127 || val<-128) {
@@ -2083,6 +2090,9 @@ void opcode(label *id, char **next) {
 		if(addr>0xffff)
 			errmsg="PC out of range.";
 		output(op,1);
+		if(type==ZPREL) {
+			output_le(zprel_val,1);
+		}
 		output_le(val,opsize[type]);
 		*next+=s-tmpstr;
 		return;

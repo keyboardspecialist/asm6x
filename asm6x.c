@@ -1,6 +1,10 @@
 /*  History:
 1.7
-	Now assembles 65C02(S) code for the Commander X16.
+	Now assembles 65C02(S) code
+	Commander X16 loader is automatically inserted into assembly
+	Header can be omitted with new -b switch
+	Incorporates FamiStudio's label fix
+
 1.6
 	Prevent error overload by emitting 2 bytes when branch instructions fail to parse
 	Bugfix for negative numbers being parsed incorrectly after too many passes are made
@@ -480,6 +484,7 @@ int nooutput=0;//supress output (use with ENUM)
 int defaultfiller;//default fill value
 int insidemacro=0;//macro/rept is being expanded
 int verbose=1;
+int bareAssembly=0;
 
 static void* ptr_from_bool( int b )
 {
@@ -1498,6 +1503,7 @@ void showhelp(void) {
 	puts("    -L          create verbose listing (expand REPT, MACRO)");
 	puts("    -d<name>    define symbol");
 	puts("    -q          quiet mode (no output unless error)\n");
+	puts("    -b          output a bare assembly without the X16 loader");
 	puts("See README.TXT for more info.\n");
 }
 
@@ -1542,6 +1548,9 @@ int main(int argc,char **argv) {
 					break;
 				case 'q':
 					verbose = 0;
+					break;
+				case 'b':
+					bareAssembly = 1;
 					break;
 				default:
 					fatal_error("unknown option: %s",argv[i]);
@@ -1647,7 +1656,8 @@ int main(int argc,char **argv) {
 void fopen_output_write_loader(char* fname) {
 	if(outputfile) fclose(outputfile);
 	outputfile=fopen(fname, "wb");
-	if(outputfile) fwrite(x16_loader, 1, sizeof(x16_loader), outputfile);
+	if(outputfile && bareAssembly == 0)
+		fwrite(x16_loader, 1, sizeof(x16_loader), outputfile);
 }
 
 

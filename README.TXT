@@ -1,4 +1,16 @@
 --------------------------------------------------------------
+ASM6X (v1.7)
+A fork of loopy's 6502 assembler to assemble 65C02S code for
+the Commander X16
+--------------------------------------------------------------
+
+Instruct set has been expanded for the WDC 65C02S and support for the 
+Commander X16 has been added. If you wish, the CX16 loader can be omitted
+with the '-b' cli switch.
+
+Original README left below.
+
+--------------------------------------------------------------
 ASM6 (v1.6)
 A 6502 assembler by loopy (loopy at mm.st)
 --------------------------------------------------------------

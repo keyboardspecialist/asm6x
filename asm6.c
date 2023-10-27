@@ -140,7 +140,7 @@ byte x16_loader[] = {0x08, 0x01, 0x08, 0x0b, 0x03, 0x20, 0x9e, '2','0','6','1', 
 
 //65C02 adds ZPIND and ABSIND addressing modes
 enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP,ZPIND,ABSIND};
-int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0};
+int opsize[]={0,1,2,1,1,1,1,2,2,1,2,1,0,1,2};
 char ophead[]={0,'#','(','(','(',0,0,0,0,0,0,0,0,'(','('};
 char *optail[]={"A","",")",",X)","),Y",",X",",Y",",X",",Y","","","","",")",",X)",};
 byte brk[]={0x00,IMM,0x00,ZP,0x00,IMP,-1};
@@ -187,14 +187,14 @@ byte clv[]={0xb8,IMP,-1};
 byte tsx[]={0xba,IMP,-1};
 byte cpy[]={0xc0,IMM,0xc4,ZP,0xcc,ABS,-1};
 byte cmp[]={0xc9,IMM,0xc1,INDX,0xd1,INDY,0xd5,ZPX,0xdd,ABSX,0xd9,ABSY,0xc5,ZP,0xcd,ABS,0xd2,ZPIND,-1};
-byte dec[]={0xd6,ZPX,0xde,ABSX,0xc6,ZP,0xce,ABS,0x3a,ACC,-1};
+byte dec[]={0x3a,ACC,0xd6,ZPX,0xde,ABSX,0xc6,ZP,0xce,ABS,-1};
 byte iny[]={0xc8,IMP,-1};
 byte dex[]={0xca,IMP,-1};
 byte bne[]={0xd0,REL,-1};
 byte cld[]={0xd8,IMP,-1};
 byte cpx[]={0xe0,IMM,0xe4,ZP,0xec,ABS,-1};
 byte sbc[]={0xe9,IMM,0xe1,INDX,0xf1,INDY,0xf5,ZPX,0xfd,ABSX,0xf9,ABSY,0xe5,ZP,0xed,ABS,0xf2,ZPIND,-1};
-byte inc[]={0xf6,ZPX,0xfe,ABSX,0xe6,ZP,0xee,ABS,0x1a,ACC,-1};
+byte inc[]={0x1a,ACC,0xf6,ZPX,0xfe,ABSX,0xe6,ZP,0xee,ABS,-1};
 byte inx[]={0xe8,IMP,-1};
 byte nop[]={0xea,IMP,-1};
 byte beq[]={0xf0,REL,-1};

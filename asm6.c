@@ -1,4 +1,6 @@
 /*  History:
+1.7
+	Now assembles 65C02(S) code for the Commander X16.
 1.6
 	Prevent error overload by emitting 2 bytes when branch instructions fail to parse
 	Bugfix for negative numbers being parsed incorrectly after too many passes are made
@@ -33,7 +35,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#define VERSION "1.6"
+#define VERSION "1.7"
 
 #define addr firstlabel.value//'$' value
 #define NOORIGIN -0x40000000//nice even number so aligning works before origin is defined
@@ -83,6 +85,7 @@ label firstlabel={          //'$' label
 	0,//link
 };
 
+
 typedef unsigned char byte;
 typedef void (*icfn)(label*,char**);
 
@@ -131,6 +134,9 @@ void fillval(label*,char**);
 void expandmacro(label*,char**,int,char*);
 void expandrept(int,char*);
 void make_error(label*,char**);
+
+//Commander X16 loader
+byte x16_loader[] = {0x08, 0x01, 0x08, 0x0b, 0x03, 0x20, 0x9e, '2','0','6','1', 0, 0, 0};
 
 //65C02 adds ZPIND and ABSIND addressing modes
 enum optypes {ACC,IMM,IND,INDX,INDY,ZPX,ZPY,ABSX,ABSY,ZP,ABS,REL,IMP,ZPIND,ABSIND};
@@ -1461,8 +1467,8 @@ badlabel:
 
 void showhelp(void) {
 	puts("");
-	puts("asm6 " VERSION "\n");
-	puts("Usage:  asm6 [-options] sourcefile [outputfile] [listfile]\n");
+	puts("asm6x " VERSION "\n");
+	puts("Usage:  asm6x [-options] sourcefile [outputfile] [listfile]\n");
 	puts("    -?          show this help");
 	puts("    -l          create listing");
 	puts("    -L          create verbose listing (expand REPT, MACRO)");
@@ -1614,6 +1620,13 @@ int main(int argc,char **argv) {
 	return error ? EXIT_FAILURE : 0;
 }
 
+void fopen_output_write_loader(char* fname) {
+	if(outputfile) fclose(outputfile);
+	outputfile=fopen(fname, "wb");
+	if(outputfile) fwrite(x16_loader, 1, sizeof(x16_loader), outputfile);
+}
+
+
 #define LISTMAX 8//number of output bytes to show in listing
 byte listbuff[LISTMAX];
 int listcount;
@@ -1633,8 +1646,9 @@ void output(byte *p,int size) {
 		return;
 	if(oldpass!=pass) {
 		oldpass=pass;
-		if(outputfile) fclose(outputfile);
-		outputfile=fopen(outputfilename,"wb");
+		//if(outputfile) fclose(outputfile);
+		//outputfile=fopen(outputfilename,"wb");
+		fopen_output_write_loader(outputfilename);
 		outcount=0;
 		if(!outputfile) {
 			errmsg="Can't create output file.";

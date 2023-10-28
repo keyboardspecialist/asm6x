@@ -1498,8 +1498,8 @@ badlabel:
 
 void showhelp(void) {
 	puts("");
-	puts("asm6x " VERSION "\n");
-	puts("Usage:  asm6x [-options] sourcefile [outputfile] [listfile]\n");
+	puts("asm6 " VERSION "\n");
+	puts("Usage:  asm6 [-options] sourcefile [outputfile] [listfile]\n");
 	puts("    -?          show this help");
 	puts("    -l          create listing");
 	puts("    -L          create verbose listing (expand REPT, MACRO)");

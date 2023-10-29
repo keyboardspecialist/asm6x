@@ -4,6 +4,7 @@
 	Commander X16 loader is automatically inserted into assembly
 	Loader can be omitted with new -b switch
 	Incorporates FamiStudio's label fix
+	ASCII string literals are translated to PETSCII. -a flag to disable
 
 1.6
 	Prevent error overload by emitting 2 bytes when branch instructions fail to parse
@@ -487,6 +488,7 @@ int defaultfiller;//default fill value
 int insidemacro=0;//macro/rept is being expanded
 int verbose=1;
 int bareAssembly=0;
+int translatePetscii=1;
 
 static void* ptr_from_bool( int b )
 {
@@ -808,6 +810,11 @@ int eval(char **str,int precedence,int type) {
 		case '>':
 			s++;
 			ret=(eval(&s,UNARY,type)>>8)&0xff;
+			break;
+		case '^':
+			s++;
+			ret=(eval(&s,UNARY,type));
+			ret = (ret>>16)&0xff;
 			break;
 		case '+':
 		case '-':
@@ -1554,6 +1561,8 @@ int main(int argc,char **argv) {
 				case 'b':
 					bareAssembly = 1;
 					break;
+				case 'a':
+					translatePetscii = 0;
 				default:
 					fatal_error("unknown option: %s",argv[i]);
 			}
@@ -1960,7 +1969,8 @@ void db(label *id,char **next) {
 				if(*start=='\\')
 					start++;
 				val=*start+val2;
-				val=CTPET[val];
+				if(translatePetscii) 
+					val=CTPET[val];
 				start++;
 				output_le(val,1);
 			}

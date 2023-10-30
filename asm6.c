@@ -1513,6 +1513,7 @@ void showhelp(void) {
 	puts("    -d<name>    define symbol");
 	puts("    -q          quiet mode (no output unless error)\n");
 	puts("    -b          output a bare assembly without the X16 loader");
+	puts("    -a          disable ASCII to PETSCII translation");
 	puts("See README.TXT for more info.\n");
 }
 
@@ -1969,7 +1970,7 @@ void db(label *id,char **next) {
 				if(*start=='\\')
 					start++;
 				val=*start+val2;
-				if(translatePetscii) 
+				if(translatePetscii)
 					val=CTPET[val];
 				start++;
 				output_le(val,1);

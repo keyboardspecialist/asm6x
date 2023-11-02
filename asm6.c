@@ -43,6 +43,7 @@
 #define VERSION "1.7"
 
 #define addr firstlabel.value//'$' value
+#define base_addr baselabel.value //'$$' value
 #define NOORIGIN -0x40000000//nice even number so aligning works before origin is defined
 #define INITLISTSIZE 128//initial label list size
 #define BUFFSIZE 8192//file buffer (inputbuff, outputbuff) size
@@ -90,6 +91,16 @@ label firstlabel={          //'$' label
 	0,//link
 };
 
+label baselabel={
+	"$$",
+	0,
+	(char*)&true_ptr,
+	VALUE,
+	0,
+	0,
+	0,
+	0,
+};
 
 typedef unsigned char byte;
 typedef void (*icfn)(label*,char**);
@@ -624,6 +635,8 @@ int getvalue(char **str) {
 		s++;
 		if(!*s) {
 			ret=addr;//$ by itself is the PC
+		} else if(*s=='$') { //$$ is the base/org address
+			ret=base_addr;
 		} else do {
 hexi:       j=hexify(*s);
 			s++;
@@ -985,8 +998,13 @@ int getlabel(char *dst,char **src) {
 	char c;
 
 	getword(dst,src,1);
-	if(*dst=='$'&&!dst[1])//'$' label
-		return 1;
+	if(*dst=='$') {
+		if(!dst[1]) //'$' label
+			return 1;
+
+		if(dst[1]=='$'&&!dst[2]) //'$$' label
+			return 1;
+	}
 
 	s=dst;//+label, -label
 	c=*s;
@@ -1624,6 +1642,7 @@ int main(int argc,char **argv) {
 		nextscope=2;
 		defaultfiller=DEFAULTFILLER;    //reset filler value
 		addr=NOORIGIN;//undefine origin
+		base_addr=NOORIGIN;
 		p=lastlabel;
 		nameptr=inputfilename;
 		include(0,&nameptr);        //start assembling srcfile
@@ -1816,9 +1835,9 @@ void base(label *id, char **next) {
 	dependant=0;
 	val=eval(next,WHOLEEXP,ABS);
 	if(!dependant && !errmsg)
-		addr=val;
+		base_addr=addr=val;
 	else
-		addr=NOORIGIN;//undefine origin
+		base_addr=addr=NOORIGIN;//undefine origin
 }
 
 //nothing to do (empty line)
